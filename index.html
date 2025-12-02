@@ -1,105 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام تسجيل الدخول</title>
-
-<style>
-    body {
-        font-family: "Cairo", sans-serif;
-        background: #eef2f5;
-        height: 100vh;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .box {
-        width: 360px;
-        background: #fff;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    input {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-    }
-    button {
-        width: 100%;
-        padding: 12px;
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 17px;
-    }
-    button:hover {
-        background: #1e4bc7;
-    }
-    .link {
-        text-align: center;
-        margin-top: 10px;
-    }
-    .link span {
-        color: #2563eb;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    .hidden {
-        display: none;
-    }
-</style>
-
-</head>
-<body>
-
-<div class="box">
-
-    <!-- ============= تسجيل الدخول ============= -->
-    <div id="loginBox">
-        <h2>تسجيل الدخول</h2>
-
-        <input id="login_user" placeholder="اسم المستخدم أو الإيميل">
-        <input type="password" id="login_pass" placeholder="كلمة المرور">
-
-        <button onclick="login()">دخول</button>
-
-        <div class="link">
-            مستخدم جديد؟ <span onclick="showRegister()">إنشاء حساب</span>
-        </div>
-    </div>
-
-    <!-- ============= إنشاء حساب ============= -->
-    <div id="registerBox" class="hidden">
-        <h2>إنشاء حساب جديد</h2>
-
-        <input id="reg_name" placeholder="الاسم الكامل">
-        <input id="reg_username" placeholder="اسم المستخدم">
-        <input id="reg_email" placeholder="الإيميل">
-        <input type="password" id="reg_pass" placeholder="كلمة المرور">
-        <input type="password" id="reg_pass2" placeholder="تأكيد كلمة المرور">
-
-        <button onclick="register()">تسجيل</button>
-
-        <div class="link">
-            عندك حساب؟ <span onclick="showLogin()">تسجيل الدخول</span>
-        </div>
-    </div>
-
-</div>
-
-
 <script>
+// حط هنا رابط الويب آب الحالي من Google Script
 const API = "https://script.google.com/macros/s/AKfycbyThHv9hINEjNZgh98bidZKUiH7KOp514MPIbvRRPtK0P5UTw9js7PK28Isdj5tEnbT/exec";
 
-
-// التبديل بين الصفحات
+// التبديل بين تسجيل الدخول والتسجيل
 function showRegister() {
     document.getElementById("loginBox").classList.add("hidden");
     document.getElementById("registerBox").classList.remove("hidden");
@@ -109,31 +12,30 @@ function showLogin() {
     document.getElementById("loginBox").classList.remove("hidden");
 }
 
-
-// -------- تسجيل مستخدم --------
+// -------- تسجيل مستخدم جديد --------
 function register() {
-
-    let name = document.getElementById("reg_name").value;
+    let name     = document.getElementById("reg_name").value;
     let username = document.getElementById("reg_username").value;
-    let email = document.getElementById("reg_email").value;
-    let pass = document.getElementById("reg_pass").value;
-    let pass2 = document.getElementById("reg_pass2").value;
+    let email    = document.getElementById("reg_email").value;
+    let pass     = document.getElementById("reg_pass").value;
+    let pass2    = document.getElementById("reg_pass2").value;
 
     if (pass !== pass2) {
         alert("كلمة المرور غير متطابقة");
         return;
     }
 
+    // نرسل البيانات كـ form data (بدون JSON)
+    let formData = new URLSearchParams();
+    formData.append("action",   "register");
+    formData.append("name",     name);
+    formData.append("username", username);
+    formData.append("email",    email);
+    formData.append("password", pass);
+
     fetch(API, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            action: "register",
-            name: name,
-            username: username,
-            email: email,
-            password: pass
-        })
+        body: formData
     })
     .then(res => res.json())
     .then(data => {
@@ -142,40 +44,35 @@ function register() {
             showLogin();
         }
     })
-    .catch(error => {
-        alert("خطأ في الاتصال: " + error);
+    .catch(err => {
+        alert("خطأ في الاتصال: " + err);
     });
 }
 
-
 // -------- تسجيل الدخول --------
 function login() {
-
     let user = document.getElementById("login_user").value;
     let pass = document.getElementById("login_pass").value;
 
+    let formData = new URLSearchParams();
+    formData.append("action",   "login");
+    formData.append("user",     user);
+    formData.append("password", pass);
+
     fetch(API, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            action: "login",
-            user: user,
-            password: pass
-        })
+        body: formData
     })
     .then(res => res.json())
     .then(data => {
         alert(data.message);
         if (data.status === "success") {
-            window.location.href = "home.html"; // الصفحة بعد الدخول
+            // بعد تسجيل الدخول الناجح
+            window.location.href = "home.html";
         }
     })
-    .catch(error => {
-        alert("خطأ في الاتصال: " + error);
-    });
+    .catch(err => {
+        alert("خطأ في الاتصال: " + err);
+    });
 }
-
 </script>
-
-</body>
-</html>
