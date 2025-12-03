@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تسجيل الدخول</title>
+<title>نظام تسجيل الدخول</title>
 
 <style>
     body {
@@ -39,10 +39,8 @@
         border-radius: 10px;
         cursor: pointer;
         font-size: 17px;
-        font-weight: bold;
     }
-    button:hover { background: #1e40af; }
-
+    button:hover { background: #1e4bc7; }
     .link {
         text-align: center;
         margin-top: 10px;
@@ -95,22 +93,27 @@
 
 
 <script>
-/*  ضع هنا رابط Web App الخاص بك */
-const API = "https://script.google.com/macros/s/AKfycbySI6iKaliiiZCcS2W_LQQKACYj6DZaV-hTIwkdwWRr8nRwNd3HWMg4dxpH3Udn8cqL/exec";
+/* ضع هنا رابط Web App الخاص بك */
+const API = "https://script.google.com/macros/s/AKfycby8WY0nZmQqg_g-sFIwDBHdZuklmYwhlLgQx3sLc0KqjF8KteUnqgxfNXtPpoO_DlKq/exec";
 
 
-// التبديل بين الصفحتين
+// ——————————————
+// التبديل بين النموذجين
+// ——————————————
 function showRegister() {
     document.getElementById("loginBox").classList.add("hidden");
     document.getElementById("registerBox").classList.remove("hidden");
 }
+
 function showLogin() {
     document.getElementById("registerBox").classList.add("hidden");
     document.getElementById("loginBox").classList.remove("hidden");
 }
 
 
+// ——————————————
 // تسجيل مستخدم جديد
+// ——————————————
 function register() {
 
     let name = document.getElementById("reg_name").value;
@@ -124,62 +127,62 @@ function register() {
         return;
     }
 
-    let data = new URLSearchParams();
-    data.append("action", "register");
-    data.append("name", name);
-    data.append("username", username);
-    data.append("email", email);
-    data.append("password", pass);
+    let formData = new URLSearchParams();
+    formData.append("action", "register");
+    formData.append("name", name);
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("password", pass);
 
     fetch(API, {
         method: "POST",
-        body: data
+        body: formData
     })
     .then(res => res.json())
-    .then(response => {
-        alert(response.message);
-        if (response.status === "success") {
+    .then(data => {
+        alert(data.message);
+        if (data.status === "success") {
             showLogin();
         }
     })
-    .catch(err => alert("خطأ في الاتصال: " + err));
+    .catch(err => {
+        alert("خطأ في الاتصال: " + err);
+    });
 }
 
 
-
+// ——————————————
 // تسجيل الدخول
+// ——————————————
 function login() {
 
     let user = document.getElementById("login_user").value;
     let pass = document.getElementById("login_pass").value;
 
-    let data = new URLSearchParams();
-    data.append("action", "login");
-    data.append("user", user);
-    data.append("password", pass);
+    let formData = new URLSearchParams();
+    formData.append("action", "login");
+    formData.append("user", user);
+    formData.append("password", pass);
 
     fetch(API, {
         method: "POST",
-        body: data
+        body: formData
     })
     .then(res => res.json())
-    .then(response => {
+    .then(data => {
+        alert(data.message);
+      if (data.status === "success") {
+    // حفظ جلسة المستخدم
+    localStorage.setItem("user_name", data.name);
+    localStorage.setItem("user_username", data.username);
+    localStorage.setItem("user_email", data.email);
 
-        alert(response.message);
-
-        if (response.status === "success") {
-
-            // نحفظ بيانات المستخدم في localStorage
-            localStorage.setItem("user_id", response.id);
-            localStorage.setItem("user_name", response.name);
-            localStorage.setItem("user_username", response.username);
-            localStorage.setItem("user_email", response.email);
-
-            // بعد الحفظ نذهب للصفحة الرئيسية
-            window.location.href = "home.html";
-        }
+    window.location.href = "home.html";
+}
     })
-    .catch(err => alert("خطأ في الاتصال: " + err));
+    .catch(err => {
+        alert("خطأ في الاتصال: " + err);
+    });
 }
 
 </script>
